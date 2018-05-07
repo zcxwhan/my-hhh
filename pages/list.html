@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>Hello MUI</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<link rel="stylesheet" href="../css/mui.min.css">
+		<script type="text/javascript">
+			document.documentElement.style.fontSize = document.documentElement.clientWidth /3.75 +'px';
+			window.onresize = function(){
+				document.documentElement.style.fontSize = document.documentElement.clientWidth /3.75 +'px';
+			}
+		</script>
+		<style>
+			.bg-box {
+				height: 150px;
+				overflow: hidden;
+				background-image: url(../images/star-sky.jpg);
+				background-position: center center;
+				background-size: 100%; 
+				position: relative;
+			}
+			
+			.header.mui-bar.mui-bar-nav {
+				background: none;
+				box-shadow: none;
+				border: none;
+			}
+			.header a {
+				color: #fff;
+			}
+			.type-btns {
+				position: absolute;
+				left: 0;right: 0;
+				margin-left: auto;margin-right: auto;
+				bottom: 15px;
+				width: 80%;
+				border-color: #fff;
+			}
+			.type-btns .mui-control-item {
+				border-color:#fff;
+				color: #fff;
+			}
+			.type-btns .mui-control-item.mui-active{
+				background: #fff;
+				color: #013052;
+			}
+			
+			
+
+		</style>
+	</head>
+
+	<body>
+		<div class="bg-box">
+			
+			<header class="mui-bar mui-bar-nav header">
+			    <a id="search" class="mui-icon mui-icon-search mui-pull-right"></a>		
+			</header>
+			
+			<div id="segmentedControl" class="mui-segmented-control type-btns">
+				<a data-type = "in_theaters" class="mui-control-item mui-active" href="#item1">正在热映</a>
+				<a data-type = "coming_soon" class="mui-control-item" href="#item2">即将上映</a>
+				<a data-type = "top250" class="mui-control-item" href="#item3">Top250</a>
+			</div>
+			
+		</div>
+		
+		
+		
+		<script src="../js/mui.min.js"></script>
+		<script src="../js/zepto_1.1.3.js" type="text/javascript" charset="utf-8"></script>
+		<script>
+			mui.init({
+				subpages:[{//给当前窗口配置子窗口并放入页面
+					url:'list-content.html',
+					id:'list-content.html',
+					styles:{
+						top: '150px',
+						bottom: '0px',
+					}
+				}]
+			})
+			
+			init()
+						
+			function init () {
+				//setStatusBarHeight()
+				addEvent()
+			}
+			//设置导航栏高度
+			function setStatusBarHeight () {
+				mui.plusReady(function() {
+					//状态栏的高度
+					let sbh = plus.navigator.getStatusbarHeight();
+					//头部的原高度 44
+					let hh = $('.header').height()
+					$('.header').height(hh + sbh + 'px').css('padding-top', sbh + 'px')
+					
+				})
+			}
+			
+			function addEvent () {
+				mui('#segmentedControl').on('tap', '.mui-control-item', function  () {
+					let type = this.getAttribute('data-type')
+					changeType(type)
+				})
+				
+				mui(".header").on('tap', '#search', function  () {
+					mui.openWindow({
+					    url:'search.html',
+					    id:'search.html',
+					    styles:{
+					      top:'0px',//新页面顶部位置
+					      bottom:'0px',//新页面底部位置
+					    },
+					    createNew:false,//是否重复创建同样id的webview，默认为false:不重复创建，直接显示
+					    waiting:{
+					      autoShow:false,//自动显示等待框，默认为true
+					    }
+					})
+				})
+			}
+			//切换类型的方法
+			let content = null
+			function changeType (type) {
+				//触发子窗口的事件并且传入对应的type
+				if (!content) {
+					content = plus.webview.getWebviewById('list-content.html')
+				}
+				//触发某一个窗口的某一个事件
+				mui.fire(content,'changeType',{type: type})
+			}
+			
+			
+			
+		</script>
+	</body>
+
+</html>

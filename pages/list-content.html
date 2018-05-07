@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>Hello MUI</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+		<link rel="stylesheet" href="../css/mui.min.css">
+		<script type="text/javascript">
+			document.documentElement.style.fontSize = document.documentElement.clientWidth /3.75 +'px';
+			window.onresize = function(){
+				document.documentElement.style.fontSize = document.documentElement.clientWidth /3.75 +'px';
+			}
+		</script>
+		<style type="text/css">
+			.movie-content .mui-media .img-box{
+				width: 0.6rem;
+				height: 0.84rem;
+				display: inline-block;
+				margin-right: 10px;
+			}
+			.movie-content .mui-media .img-box img {
+				width: 0.6rem;
+				height: auto;
+				max-width: none;
+			}
+			.movie-content .mui-media-body {
+				height: 0.84rem;
+				display: flex;
+				flex-flow: column;
+				justify-content: space-between;
+			}
+			.movie-content .mui-media-body .title {
+				font-weight: normal;
+			}
+			.movie-content .mui-media a {
+				position: relative;
+			}
+			.movie-content .grade {
+				font-size:1.5em;
+				color: #013052;
+				position: absolute;
+				right: 15px;top: 11px;
+			}
+			.movie-content .mui-media-body span {
+				display: inline-block;
+				padding: 0px 5px;
+			}
+			.mui-card {
+				margin: 0;
+				background: none;padding: 10px;
+				box-shadow: none;
+			}
+			.back-top{
+				background: #013052;
+				width: 50px;
+				height: 50px;
+				border-radius: 50%;
+				z-index: 999;
+				position: fixed;right: 15px;bottom: 15px;
+				color: #fff;
+				display: flex;justify-content: center;align-items: center;
+			}
+		</style>
+	</head>
+
+	<body>
+		<!--下拉刷新容器-->
+
+			<div class="movie-content mui-content mui-scroll-wrapper" id="pullrefresh">
+				<div class="mui-card mui-scroll" style="margin-bottom: 35px;">
+					<ul class="mui-table-view movie-list">
+						
+					</ul>
+				</div>
+				<div class="back-top"><i class="mui-icon mui-icon-arrowup"></i></div>
+			</div>
+
+		<script src="../js/mui.min.js"></script>
+		<script src="../js/zepto_1.1.3.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/toDetail.js" type="text/javascript" charset="utf-8"></script>
+		<script>
+			mui.init({
+				pullRefresh: {
+					container: '#pullrefresh',
+					down: {//下拉刷新的相关配置
+					      auto: false,//可选,默认false.首次加载自动下拉刷新一次
+//					      contentdown : "下拉可以刷新",//可选，在下拉可刷新状态时，下拉刷新控件上显示的标题内容
+//					      contentover : "释放立即刷新",//可选，在释放可刷新状态时，下拉刷新控件上显示的标题内容
+//					      contentrefresh : "正在刷新...",//可选，正在刷新状态时，下拉刷新控件上显示的标题内容
+//					      callback :pullfresh-function, //必选，刷新函数，根据具体业务来编写，比如通过ajax从服务器获取新数据；
+						  callback: pulldownRefresh
+					},
+					up: {//上拉加载的相关配置
+						auto: true,
+						contentrefresh: '正在加载...',
+						callback: pullupRefresh
+					}
+				}
+			});
+			
+			//回到顶部
+			mui('.movie-content').on('tap','.back-top',function(){
+				mui('#pullrefresh').pullRefresh().scrollTo(0,0,100)//100毫秒滚动到顶
+			})
+			
+			/**
+			 * 下拉刷新具体业务实现
+			 */
+			function pulldownRefresh() {
+//				mui('#pullrefresh').pullRefresh().endPulldownToRefresh(); //refresh completed
+				getMoviesByType(type,(results) => {
+					//对比一下，是不是有新的数据？
+
+					if (results.subjects[0].title == $('.mui-media').eq(0).find('.title').html()){
+						//说明已经是最新的数据了，结束拉动属性
+						
+						mui.toast('已经是最新的了',{duration:100000}) 
+						mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+						return ; 
+					}
+					renderMovieItem(results.subjects,true)		
+					mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+				},true)
+			}
+			
+			function pullupRefresh() {
+//				mui('#pullrefresh').pullRefresh().endPullupToRefresh((++count > 2)); //参数为true代表没有更多数据了。
+				getMoviesByType(type,(results) => {
+					renderMovieItem(results.subjects)
+					start += count
+					mui('#pullrefresh').pullRefresh().endPullupToRefresh( results.total < start ); 
+				})
+					
+			}
+			//从哪里开始获取
+			var start = 0;
+			//每次获取多少条
+			var count = 10;
+			//类型
+			var type = "in_theaters"
+			//当触发这个方法的时候，数据会重新获取
+			window.addEventListener('changeType',function(e){
+				if ( type === e.detail.type ) return false;
+				type = e.detail.type
+				start = 0;
+				$('.movie-content .mui-table-view').html('')
+				mui('#pullrefresh').pullRefresh().scrollTo(0,0,0)
+				mui('#pullrefresh').pullRefresh().refresh(true);
+				pullupRefresh()
+			})
+			
+//				//获取电影
+			function getMoviesByType (type, callback,isDown) {
+				$.ajax({
+					dataType:'jsonp',
+					url: 'http://api.douban.com/v2/movie/'+type,
+					data: {
+						start: isDown? 0 : start,//如果是下拉刷新的时候，从0开始取
+						count: isDown? 5 : count //下拉刷新的 时候每次都只需前五条
+					},
+					success: (results) => {							
+						callback(results)
+										
+					}
+				})
+			}
+			
+//				//处理数据的方法
+			function renderMovieItem (movies, isDown) {				
+				//如果是上拉加载的话，获取到什么就给ul里方就行了				
+				let arr = movies.map(item => {
+					return `
+						<li data-id = "${item.id}" class="mui-table-view-cell mui-media movie-item">
+							<a href="javascript:;">
+								<div class = "img-box img-loading mui-pull-left">
+									<img class="mui-media-object " src="${item.images.small}">
+								</div>
+								
+								<div class="mui-media-body">
+									<h4 class="title">${item.title}</h4>
+									<p class="mui-ellipsis">类别：${getTypesOrActors(item.genres)}</p>
+									<p class="mui-ellipsis">主演：${getTypesOrActors(item.casts)}</p>
+								</div>
+								<span class="grade">${item.rating.average}</span>
+							</a>
+						</li>
+					`
+				})
+				
+				let results = arr.join().replace(/\,/g,'')
+				//如果是下拉刷新的话，就加入到前面
+				if( isDown ) {
+					$('.movie-content .mui-table-view').prepend(results)
+					return false;
+				}
+				$('.movie-content .mui-table-view').append(results)
+			
+			}
+			//循环主演名字和类别的
+			function getTypesOrActors (arr) {
+				let str = ''
+				arr.forEach(item => {
+					str += `<span>${(typeof item) === 'string'? item : item.name}</span>`
+				})
+				return str
+			}
+			
+			//最好，能有体系，上家公司： 猪八戒
+//			(vue) * 1
+//			(react) * 2
+//			
+//			(微信公众号的二次开发 zepto ...  )
+//			(混合开发   原生主导)
+//			小程序/H5主导..
+//			(pc jquery -- 后台管理系统)
+			
+		</script>
+	</body>
+
+</html>

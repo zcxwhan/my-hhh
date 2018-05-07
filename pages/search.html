@@ -1,0 +1,113 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<script type="text/javascript">
+			document.documentElement.style.fontSize = document.documentElement.clientWidth /3.75 +'px';
+			window.onresize = function(){
+				document.documentElement.style.fontSize = document.documentElement.clientWidth /3.75 +'px';
+			}
+		</script>
+		<style>
+			.bg-box {
+				height: 150px;
+				overflow: hidden;
+				background-image: url(../images/star-sky-2.jpg);
+				background-position: center center;
+				background-size: 100%; 
+				position: relative;
+			}
+			.header.mui-bar.mui-bar-nav {
+				background: none;
+				box-shadow: none;
+				border: none;
+			}
+			.header a,.header h1 {
+				color: #fff;
+			}
+			.mui-input-group {
+				position: absolute;
+				bottom: 15px;
+				width: 80%;
+				left: 10%;
+				
+			}
+		</style>
+	</head>
+
+	<body>
+		
+		<div class="bg-box">
+			
+			<header class="mui-bar mui-bar-nav header">
+			    <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			    <h1 class="mui-title">搜索你喜欢的</h1>
+			</header>
+			<form id="form" class="mui-input-group">
+				<div class="mui-input-row mui-search">
+				    <input id="search-input" type="search" class="mui-input-clear" placeholder="">
+				</div>
+			</form>
+			
+		</div>
+		
+		<div class="mui-content">
+			
+		</div>
+		
+		<script src="../js/mui.min.js"></script>
+		<script src="../js/zepto_1.1.3.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			mui.init({
+				subpages:[
+					{
+						url: 'search-content.html',
+						id: 'search-content.html',
+						styles: {
+							top:　'150px',
+							bottom: '0px'
+						}
+					}
+				]
+			})
+			
+			init()
+						
+			function init () {
+				setStatusBarHeight()
+				submitHandler()
+			}
+			//设置导航栏高度
+			function setStatusBarHeight () {
+				mui.plusReady(function() {
+					//状态栏的高度
+					let sbh = plus.navigator.getStatusbarHeight();
+					//头部的原高度 44
+					let hh = $('.header').height()
+					$('.header').height(hh + sbh + 'px').css('padding-top', sbh + 'px')
+					
+				})
+			}
+			
+			let content = null
+			
+			function submitHandler() {
+				$("#form").submit(function  (e) {
+					e.preventDefault()
+					let q = $("#search-input").val()
+					
+					if(!content) {
+						content = plus.webview.getWebviewById('search-content.html')
+					}
+					mui.fire(content,'search',{q: q})
+					$("#search-input").blur()
+				})
+			}
+		</script>
+	</body>
+
+</html>

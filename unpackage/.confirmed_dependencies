@@ -1,0 +1,98 @@
+{
+  "index.html": {
+    "resources": [
+      "js/mui.min.js",
+      "fonts/mui.ttf",
+      "css/mui.min.css",
+      "pages/main.html"
+    ],
+    "refer": [
+      "pages/list.html",
+      "pages/mine.html",
+      "pages/main.html"
+    ]
+  },
+  "pages/list-content.html": {
+    "resources": [
+      "css/mui.min.css"
+    ],
+    "refer": [
+      "pages/detail.html"
+    ]
+  },
+  "pages/list.html": {
+    "resources": [
+      "images/star-sky.jpg",
+      "pages/list-content.html",
+      "css/mui.min.css",
+      "js/zepto_1.1.3.js"
+    ],
+    "refer": [
+      "pages/list-content.html",
+      "pages/search.html"
+    ]
+  },
+  "pages/mine.html": {
+    "resources": [
+      "images/user-notlogin.jpg",
+      "images/not-login-bg.jpg"
+    ],
+    "refer": [
+      "pages/login.html"
+    ]
+  },
+  "pages/main.html": {
+    "resources": [
+      "js/zepto_1.1.3.js",
+      "images/loading.gif",
+      "css/swiper.min.css",
+      "js/toDetail.js",
+      "js/swiper.min.js",
+      "js/vue.min.js",
+      "css/mui.min.css"
+    ],
+    "refer": []
+  },
+  "pages/login.html": {
+    "resources": [
+      "js/app.js",
+      "css/mui.min.css",
+      "js/zepto_1.1.3.js",
+      "js/mui.min.js",
+      "fonts/mui.ttf",
+      "images/sinaweibo.png",
+      "images/weixin.png",
+      "images/qq.png"
+    ],
+    "refer": []
+  },
+  "pages/search-content.html": {
+    "resources": [
+      "js/toDetail.js",
+      "images/loading.gif"
+    ],
+    "refer": []
+  },
+  "pages/search.html": {
+    "resources": [
+      "js/zepto_1.1.3.js",
+      "js/mui.min.js",
+      "fonts/mui.ttf",
+      "pages/search-content.html",
+      "images/star-sky-2.jpg",
+      "css/mui.min.css"
+    ],
+    "refer": [
+      "pages/search-content.html"
+    ]
+  },
+  "pages/detail.html": {
+    "resources": [
+      "js/zepto_1.1.3.js",
+      "js/mui.min.js",
+      "fonts/mui.ttf",
+      "css/mui.min.css"
+    ],
+    "refer": []
+  }
+}
